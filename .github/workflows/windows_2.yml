@@ -1,21 +1,5 @@
 name: windows2
 on:
-  push:
-    branches:
-     - master
-     - 'feature/**'
-    paths:
-      - 'source/**'
-      - 'express/**'
-      - 'test/**'
-      - '.github/workflows/windows.yml'
-  pull_request:
-    branches: [master]
-    paths:
-      - 'source/**'
-      - 'express/**'
-      - 'test/**'
-      - '.github/workflows/windows.yml'
   workflow_dispatch:
     inputs:
       cuda_version:
@@ -71,9 +55,6 @@ on:
           - '10.1.243'
           - '10.0.130'
         
-concurrency:
-  group: windows-${{ github.ref }}
-  cancel-in-progress: true
 permissions:
   contents: read
 
