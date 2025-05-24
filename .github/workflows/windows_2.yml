@@ -39,9 +39,9 @@ jobs:
           submodules: true
       - name: cuda-toolkit
         uses: Jimver/cuda-toolkit@v0.2.23
-        # with:
-        #   cuda: # optional, default is 12.8.1
-
+        with:
+          cuda: 12.6.3
+          
       - name: using msvc
         uses: ilammy/msvc-dev-cmd@v1
   
@@ -52,5 +52,5 @@ jobs:
       - name: upload-zip
         uses: actions/upload-artifact@v4
         with:
-          name: artifact-${{ env.PACKAGENAME }}
+          name: artifact-mnn_windows
           path: mnn_windows.zip
