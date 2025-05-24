@@ -1,0 +1,52 @@
+name: windows
+on:
+  push:
+    branches:
+     - master
+     - 'feature/**'
+    paths:
+      - 'source/**'
+      - 'express/**'
+      - 'test/**'
+      - '.github/workflows/windows.yml'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'source/**'
+      - 'express/**'
+      - 'test/**'
+      - '.github/workflows/windows.yml'
+  workflow_dispatch:
+  
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+
+jobs:
+  windows_build_test:
+    runs-on: windows-latest
+    steps:
+      # - uses: actions/checkout@v3
+      # - name: test
+      #   run: |
+      #       mkdir build && cd build
+      #       cmake -DMNN_BUILD_TEST=ON ..
+      #       cmake --build . -j4
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: using msvc
+        uses: ilammy/msvc-dev-cmd@v1
+  
+      - name: build
+        run: powershell .\package_scripts\win\build_lib_release2.ps1 -path mnn_windows
+      - name: package
+        run: 7z a -r mnn_windows.zip mnn_windows
+      - name: upload-zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-${{ env.PACKAGENAME }}
+          path: mnn_windows.zip
