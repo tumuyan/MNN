@@ -83,13 +83,13 @@ jobs:
     steps:
 
       - name: cuda-toolkit-custom
-        if: github.event.inputs.cuda_version
+        if: github.event.inputs.cuda_version!=''
         uses: Jimver/cuda-toolkit@v0.2.23
         with:
           cuda: ${{github.event.inputs.cuda_version}}
           
       - name: cuda-toolkit-default
-        if: ! github.event.inputs.cuda_version
+        if: github.event.inputs.cuda_version==''
         uses: Jimver/cuda-toolkit@v0.2.23
         
       # - uses: actions/checkout@v3
