@@ -51,6 +51,13 @@ if ($backends -ne $null) {
         }
     }
 }
+if ($CMAKE_ARGS -ne $null) {
+    Foreach ($backend in $CMAKE_ARGS.Split(" ")) {
+        if ($backend -eq "-DMNN_CUDA=ON") {
+            $ONLY_DYNAMIC_MT = $True
+        }
+    }
+}
 
 if ($internalbuild) {
     $CMAKE_ARGS = "$CMAKE_ARGS -DMNN_INTERNAL=ON"
