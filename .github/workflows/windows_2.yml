@@ -23,6 +23,7 @@ on:
         default: ''
         required: false
         options:
+          - ''
           - '12.8.1'
           - '12.8.0'
           - '12.6.3'
@@ -85,7 +86,7 @@ jobs:
         if: github.event.inputs.cuda_version
         uses: Jimver/cuda-toolkit@v0.2.23
         with:
-          cuda: github.event.inputs.cuda_version
+          cuda: ${{github.event.inputs.cuda_version}}
           
       - name: cuda-toolkit-default
         if: ! github.event.inputs.cuda_version
