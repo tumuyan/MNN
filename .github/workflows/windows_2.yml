@@ -1,4 +1,4 @@
-name: windows
+name: windows2
 on:
   push:
     branches:
@@ -37,6 +37,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
+      - name: cuda-toolkit
+        uses: Jimver/cuda-toolkit@v0.2.23
+        # with:
+        #   cuda: # optional, default is 12.8.1
 
       - name: using msvc
         uses: ilammy/msvc-dev-cmd@v1
