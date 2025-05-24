@@ -1,0 +1,145 @@
+name: windows with cuda
+run-name: ${{github.event.inputs.image_version}} cuda${{ github.event.inputs.cuda_version }}
+on:
+  workflow_dispatch:
+    inputs:
+      # vs_version:
+      #   type: choice
+      #   default: ''
+      #   required: false
+      #   options:
+      #     - ''
+      #     - '2022'
+      #     - '2019'
+      #     - '2017'
+      #     - '2015'
+      image_version:
+        type: choice
+        default: 'windows-latest'
+        required: false
+        options:
+          - 'windows-latest'
+          - 'windows-2025'
+          - 'windows-2022'
+          - 'windows-2019'
+      cuda_version:
+        type: choice
+        default: ''
+        required: false
+        options:
+          - ''
+          - '12.8.1'
+          - '12.8.0'
+          - '12.6.3'
+          - '12.6.2'
+          - '12.6.1'
+          - '12.6.0'
+          - '12.5.1'
+          - '12.5.0'
+          - '12.4.1'
+          - '12.4.0'
+          - '12.3.2'
+          - '12.3.1'
+          - '12.3.0'
+          - '12.2.2'
+          - '12.2.1'
+          - '12.2.0'
+          - '12.1.1'
+          - '12.1.0'
+          - '12.0.1'
+          - '12.0.0'
+          - '11.8.0'
+          - '11.7.1'
+          - '11.7.0'
+          - '11.6.2'
+          - '11.6.1'
+          - '11.6.0'
+          - '11.5.2'
+          - '11.5.1'
+          - '11.5.0'
+          - '11.4.4'
+          - '11.4.3'
+          - '11.4.2'
+          - '11.4.1'
+          - '11.4.0'
+          - '11.3.1'
+          - '11.3.0'
+          - '11.2.2'
+          - '11.2.1'
+          - '11.2.0'
+          - '11.1.1'
+          - '11.0.3'
+          - '11.0.2'
+          - '11.0.1'
+          - '10.2.89'
+          - '10.1.243'
+          - '10.0.130'
+        
+permissions:
+  contents: read
+
+jobs:
+  windows_build_test:
+    runs-on:  ${{github.event.inputs.image_version}}
+    steps:
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          
+      - name: cuda toolkit custom
+        if: github.event.inputs.cuda_version!=''
+        uses: Jimver/cuda-toolkit@v0.2.23
+        with:
+          cuda: ${{github.event.inputs.cuda_version}}
+
+      - name: cuda toolkit default
+        if: github.event.inputs.cuda_version==''
+        uses: Jimver/cuda-toolkit@v0.2.23
+
+      - name: List CUDA Toolkit Directory
+        run: |
+          $cudaPath = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA"
+          if (Test-Path $cudaPath) {
+              Write-Host "CUDA Toolkit Directory: $cudaPath"
+              Get-ChildItem -Path $cudaPath -Directory | ForEach-Object {
+                  Write-Host $_.FullName
+                  Get-ChildItem -Path $_.FullName -Directory | ForEach-Object {
+                      Write-Host "  └── " $_.FullName
+                  }
+              }
+          } else {
+              Write-Host "CUDA Toolkit directory does not exist."
+          }
+          
+      # - name: using msvc custom
+      #   uses: ilammy/msvc-dev-cmd@v1.13.0
+      #   if: github.event.inputs.vs_version!=''
+      #   with:
+      #     vs_version: ${{github.event.inputs.vs_version}}
+          
+      - name: using msvc
+        uses: ilammy/msvc-dev-cmd@v1.13.0
+        # if: github.event.inputs.vs_version==''
+
+        
+      - name: build
+        run: powershell .\package_scripts\win\build_lib_release2.ps1 -path mnn_windows
+      - name: package
+        run: 7z a -r mnn_windows.zip mnn_windows
+      - name: upload-zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-mnn-${{github.event.inputs.image_version}}-cuda${{github.event.inputs.cuda_version}}
+          path: mnn_windows.zip  
+
+      - name: upload-cuda-bin
+        uses: actions/upload-artifact@v4
+        with:
+          name: cuda-runtime-${{github.event.inputs.cuda_version}}-bin
+          path: ${{ env.CUDA_PATH }}/bin/*.dll
+      - name: upload-cuda-lib
+        uses: actions/upload-artifact@v4
+        with:
+          name: cuda-runtime-${{github.event.inputs.cuda_version}}-lib
+          path: ${{ env.CUDA_PATH }}/lib/*
