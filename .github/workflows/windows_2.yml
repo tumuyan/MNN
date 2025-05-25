@@ -1,5 +1,5 @@
 name: windows with cuda
-run-name: windows with vs${{github.event.inputs.vs_version}} cuda${{ github.event.inputs.cuda_version }}
+run-name: ${{github.event.inputs.image_version}} cuda${{ github.event.inputs.cuda_version }}
 on:
   workflow_dispatch:
     inputs:
@@ -114,7 +114,7 @@ jobs:
       - name: upload-zip
         uses: actions/upload-artifact@v4
         with:
-          name: artifact-mnn_windows-${{github.event.inputs.cuda_version}}
+          name: artifact-mnn-${{github.event.inputs.image_version}}-cuda${{github.event.inputs.cuda_version}}
           path: mnn_windows.zip  
 
       - name: upload-cuda-bin
