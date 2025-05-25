@@ -85,13 +85,13 @@ jobs:
         uses: Jimver/cuda-toolkit@v0.2.23
           
       - name: using msvc custom
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@v1.13.0
         if: github.event.inputs.vs_version!=''
         with:
           vs_version: ${{github.event.inputs.vs_version}}
           
       - name: using msvc default
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@v1.13.0
         if: github.event.inputs.vs_version==''
 
       - uses: actions/checkout@v4
