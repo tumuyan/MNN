@@ -1,4 +1,4 @@
-name: windows2
+name: windows with cuda ${{ github.event.inputs.cuda_version }}
 on:
   workflow_dispatch:
     inputs:
