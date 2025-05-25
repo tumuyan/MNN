@@ -3,6 +3,16 @@ run-name: windows with cuda ${{ github.event.inputs.cuda_version }}
 on:
   workflow_dispatch:
     inputs:
+      vs_version:
+        type: choice
+        default: ''
+        required: false
+        options:
+          - ''
+          - '2022'
+          - '2019'
+          - '2017'
+          - '2015'
       cuda_version:
         type: choice
         default: ''
@@ -73,20 +83,21 @@ jobs:
       - name: cuda-toolkit-default
         if: github.event.inputs.cuda_version==''
         uses: Jimver/cuda-toolkit@v0.2.23
-        
-      # - uses: actions/checkout@v3
-      # - name: test
-      #   run: |
-      #       mkdir build && cd build
-      #       cmake -DMNN_BUILD_TEST=ON ..
-      #       cmake --build . -j4
+          
+      - name: using msvc custom
+        uses: ilammy/msvc-dev-cmd@v1
+        if: github.event.inputs.cuda_version!=''
+        with:
+          vs_version: ${{github.event.inputs.cuda_version}}
+          
+      - name: using msvc default
+        uses: ilammy/msvc-dev-cmd@v1
+        if: github.event.inputs.cuda_version==''
+
       - uses: actions/checkout@v4
         with:
           submodules: true
-          
-      - name: using msvc
-        uses: ilammy/msvc-dev-cmd@v1
-  
+        
       - name: build
         run: powershell .\package_scripts\win\build_lib_release2.ps1 -path mnn_windows
       - name: package
