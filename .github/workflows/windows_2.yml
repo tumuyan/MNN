@@ -121,11 +121,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cuda-runtime-${{github.event.inputs.cuda_version}}-bin
-          path: "%CUDA_PATH%/bin/"
+          path: ${{ env.CUDA_PATH }}/bin/*
       - name: upload-cuda-lib
         uses: actions/upload-artifact@v4
         with:
           name: cuda-runtime-${{github.event.inputs.cuda_version}}-lib
-          path: "%CUDA_PATH%/lib/"
+          path: ${{ env.CUDA_PATH }}/lib/*
 
           
