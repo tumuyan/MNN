@@ -99,7 +99,7 @@ jobs:
       #   with:
       #     vs_version: ${{github.event.inputs.vs_version}}
           
-      - name: using msvc default
+      - name: using msvc
         uses: ilammy/msvc-dev-cmd@v1.13.0
         # if: github.event.inputs.vs_version==''
 
@@ -121,7 +121,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cuda-runtime-${{github.event.inputs.cuda_version}}-bin
-          path: ${{ env.CUDA_PATH }}/bin/*
+          path: ${{ env.CUDA_PATH }}/bin/*.dll
       - name: upload-cuda-lib
         uses: actions/upload-artifact@v4
         with:
