@@ -74,7 +74,7 @@ function log([String]$msg) {
 }
 
 # build it according to cmake_cmd, exit 1 when any error occur
-function Build([String]$cmake_cmd, [String]$ninja_cmd = "ninja  -DCMAKE_CXX_FLAGS=\"/EHs\" MNN ") {
+function Build([String]$cmake_cmd, [String]$ninja_cmd = "ninja -DCMAKE_CXX_FLAGS=/EHs MNN ") {
     Invoke-Expression $cmake_cmd
     # build process may failed because of lnk1181, but be success when run again
     $try_times = 2
