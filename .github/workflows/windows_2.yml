@@ -1,5 +1,5 @@
 name: windows with cuda
-run-name: windows with cuda ${{ github.event.inputs.cuda_version }}
+run-name: windows with vs${{github.event.inputs.vs_version}} cuda${{ github.event.inputs.cuda_version }}
 on:
   workflow_dispatch:
     inputs:
@@ -74,25 +74,25 @@ jobs:
     runs-on: windows-latest
     steps:
 
-      - name: cuda-toolkit-custom
+      - name: cuda toolkit custom
         if: github.event.inputs.cuda_version!=''
         uses: Jimver/cuda-toolkit@v0.2.23
         with:
           cuda: ${{github.event.inputs.cuda_version}}
           
-      - name: cuda-toolkit-default
+      - name: cuda toolkit default
         if: github.event.inputs.cuda_version==''
         uses: Jimver/cuda-toolkit@v0.2.23
           
       - name: using msvc custom
         uses: ilammy/msvc-dev-cmd@v1
-        if: github.event.inputs.cuda_version!=''
+        if: github.event.inputs.vs_version!=''
         with:
-          vs_version: ${{github.event.inputs.cuda_version}}
+          vs_version: ${{github.event.inputs.vs_version}}
           
       - name: using msvc default
         uses: ilammy/msvc-dev-cmd@v1
-        if: github.event.inputs.cuda_version==''
+        if: github.event.inputs.vs_version==''
 
       - uses: actions/checkout@v4
         with:
