@@ -3,16 +3,25 @@ run-name: windows with vs${{github.event.inputs.vs_version}} cuda${{ github.even
 on:
   workflow_dispatch:
     inputs:
-      vs_version:
+      # vs_version:
+      #   type: choice
+      #   default: ''
+      #   required: false
+      #   options:
+      #     - ''
+      #     - '2022'
+      #     - '2019'
+      #     - '2017'
+      #     - '2015'
+      image_version:
         type: choice
-        default: ''
+        default: 'windows-latest'
         required: false
         options:
-          - ''
-          - '2022'
-          - '2019'
-          - '2017'
-          - '2015'
+          - 'windows-latest'
+          - 'windows-2025'
+          - 'windows-2022'
+          - 'windows-2019'
       cuda_version:
         type: choice
         default: ''
@@ -71,7 +80,7 @@ permissions:
 
 jobs:
   windows_build_test:
-    runs-on: windows-latest
+    runs-on:  ${{github.event.inputs.image_version}}
     steps:
 
       - name: cuda toolkit custom
@@ -84,15 +93,15 @@ jobs:
         if: github.event.inputs.cuda_version==''
         uses: Jimver/cuda-toolkit@v0.2.23
           
-      - name: using msvc custom
-        uses: ilammy/msvc-dev-cmd@v1.13.0
-        if: github.event.inputs.vs_version!=''
-        with:
-          vs_version: ${{github.event.inputs.vs_version}}
+      # - name: using msvc custom
+      #   uses: ilammy/msvc-dev-cmd@v1.13.0
+      #   if: github.event.inputs.vs_version!=''
+      #   with:
+      #     vs_version: ${{github.event.inputs.vs_version}}
           
       - name: using msvc default
         uses: ilammy/msvc-dev-cmd@v1.13.0
-        if: github.event.inputs.vs_version==''
+        # if: github.event.inputs.vs_version==''
 
       - uses: actions/checkout@v4
         with:
