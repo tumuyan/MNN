@@ -98,6 +98,7 @@ function Build([String]$cmake_cmd, [String]$ninja_cmd = "ninja MNN ") {
 log "Release/Dynamic/MT"
 Remove-Item CMakeCache.txt -ErrorAction Ignore
 Build "cmake -G Ninja $CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DMNN_WIN_RUNTIME_MT=ON .."
+echo Build "cmake -G Ninja $CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DMNN_WIN_RUNTIME_MT=ON .."
 cp MNN.lib, MNN.dll, MNN.pdb $PACKAGE_LIB_PATH\Release\Dynamic\MT
 rm MNN.*
 

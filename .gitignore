@@ -379,3 +379,5 @@ source/backend/qnn/3rdParty/include
 /mnn_windows
 /.vs/MNN/FileContentIndex
 /.vs
+/mnn_win
+/_deps

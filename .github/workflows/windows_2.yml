@@ -3,6 +3,25 @@ run-name: ${{github.event.inputs.image_version}} cuda${{ github.event.inputs.cud
 on:
   workflow_dispatch:
     inputs:
+      REPO:
+        description: 'Github Repo'
+        required: false
+        default: 'alibaba/MNN'
+        type: choice
+        options:
+          - ''
+          - 'alibaba/MNN'
+          - 'tumuyan/MNN'
+      TAG:
+        description: 'Repo Tag'
+        required: false
+        default: ''
+        type: choice
+        options:
+          - ''
+          - 3.2.1
+          - 3.2.0
+          - 3.1.4
       # vs_version:
       #   type: choice
       #   default: ''
@@ -27,7 +46,9 @@ on:
         default: ''
         required: false
         options:
+        # https://github.com/Jimver/cuda-toolkit/blob/master/src/links/windows-links.ts
           - ''
+          - '12.9.0'
           - '12.8.1'
           - '12.8.0'
           - '12.6.3'
@@ -82,20 +103,63 @@ jobs:
   windows_build_test:
     runs-on:  ${{github.event.inputs.image_version}}
     steps:
-
       - uses: actions/checkout@v4
+        if: github.event.inputs.TAG==''
         with:
+          repository: ${{ github.event.inputs.REPO }}
           submodules: true
+      - uses: actions/checkout@v4
+        if: github.event.inputs.TAG!=''
+        with:
+          repository: ${{ github.event.inputs.REPO }}
+          ref: ${{ github.event.inputs.TAG}}
+          submodules: true
+
+
+      - name: Patch CMakeLists
+        shell: pwsh
+        run: |
+          $cmakeFilePath = "source/backend/cuda/CMakeLists.txt"
+          $originalLine = 'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")'
+          $replacementBlock = @'
+          if(MSVC)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  /EHsc")
+            # set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -diag-suppress=9025")
+            set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler=\"/EHsc /wd9025\"")
+            set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Xcompiler=\"/EHsc /wd9025\"")
+          else()
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")
+          endif()
+          '@
+
+          # 检查文件是否存在
+          if (-not (Test-Path $cmakeFilePath)) {
+            Write-Error "File not found: $cmakeFilePath"
+            exit 1
+          }
+
+          # 读取文件内容，替换指定行，然后写回
+          # -Raw 读取整个文件为一个字符串，-Force 允许覆盖只读文件
+          (Get-Content $cmakeFilePath -Raw).Replace($originalLine, $replacementBlock) | Set-Content $cmakeFilePath -Force
+          
+          # 验证修改是否成功
+          Write-Host "Verifying patch for $cmakeFilePath..."
+          Get-Content $cmakeFilePath | Select-String -Pattern "set\(CMAKE_CXX_FLAGS"
           
       - name: cuda toolkit custom
         if: github.event.inputs.cuda_version!=''
         uses: Jimver/cuda-toolkit@v0.2.23
         with:
           cuda: ${{github.event.inputs.cuda_version}}
+          use-github-cache: false
+          use-local-cache: false
 
       - name: cuda toolkit default
         if: github.event.inputs.cuda_version==''
         uses: Jimver/cuda-toolkit@v0.2.23
+        with:
+          use-github-cache: false
+          use-local-cache: false
 
       - name: List CUDA Toolkit Directory
         run: |
@@ -121,16 +185,19 @@ jobs:
       - name: using msvc
         uses: ilammy/msvc-dev-cmd@v1.13.0
         # if: github.event.inputs.vs_version==''
-
-        
+            
       - name: build
-        run: powershell .\package_scripts\win\build_lib_release2.ps1 -path mnn_windows
+        run: |
+          $url = "https://github.com/tumuyan/MNN/raw/refs/heads/master/package_scripts/win/build_lib_release2.ps1"
+          $output = ".\package_scripts\win\build_lib_release2.ps1"
+          Invoke-WebRequest -Uri $url -OutFile $output
+          powershell $output -path mnn_windows
       - name: package
         run: 7z a -r mnn_windows.zip mnn_windows
       - name: upload-zip
         uses: actions/upload-artifact@v4
         with:
-          name: artifact-mnn-${{github.event.inputs.image_version}}-cuda${{github.event.inputs.cuda_version}}
+          name: artifact-mnn${{ github.event.inputs.TAG}}-${{github.event.inputs.image_version}}-cuda${{github.event.inputs.cuda_version}}
           path: mnn_windows.zip  
 
       - name: upload-cuda-bin
