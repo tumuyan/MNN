@@ -123,10 +123,10 @@ jobs:
           $originalLine = 'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")'
           $replacementBlock = @'
           if(MSVC)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  /EHsc")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  /EHsc /W3")
             # set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -diag-suppress=9025")
-            set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler=\"/EHsc /wd9025\"")
-            set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Xcompiler=\"/EHsc /wd9025\"")
+            # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler=\"/EHsc /wd9025\"")
+            # set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Xcompiler=\"/EHsc /wd9025\"")
           else()
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")
           endif()
